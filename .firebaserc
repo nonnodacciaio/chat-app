@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "chat-app-533c5": {
+      "hosting": {
+        "chat-app": [
+          "chat-app-533c5"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "chat-app-533c5"
+  }
+}
