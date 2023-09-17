@@ -2,7 +2,8 @@ import { Injectable } from "@angular/core";
 import { FirebaseError } from "@angular/fire/app";
 import { GoogleAuthProvider } from "@angular/fire/auth";
 import { AngularFireAuth } from "@angular/fire/compat/auth";
-import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, where } from "@angular/fire/firestore";
+import { Firestore, collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, where } from "@angular/fire/firestore";
+import { Router } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { MessageService } from "./message.service";
 
@@ -11,7 +12,7 @@ export class AuthService {
 	private userDataSubject: BehaviorSubject<any | null> = new BehaviorSubject<any | null>(null);
 	userData$ = this.userDataSubject.asObservable();
 
-	constructor(private afAuth: AngularFireAuth, private messageService: MessageService) {
+	constructor(private afAuth: AngularFireAuth, private messageService: MessageService, private router: Router, private firestore: Firestore) {
 		this.afAuth.authState.subscribe(user => {
 			if (user) {
 				this.userDataSubject.next(user);
@@ -34,7 +35,7 @@ export class AuthService {
 			.signInWithEmailAndPassword(email, password)
 			.then(result => {
 				this.setUserData(result.user);
-				// TODO: redirect user after login
+				this.router.navigate(["/global"]);
 			})
 			.catch((error: FirebaseError) => this.messageService.error(error.message));
 	}
@@ -58,13 +59,14 @@ export class AuthService {
 			await setDoc(docRef, { uid: user.uid, email: user.email, displayName: user.displayName, phoneNumber: user.phoneNumber }, { merge: true });
 		} catch (error) {
 			this.messageService.error(`Error storing user data`);
+			console.log(error);
 		}
 	}
 
 	async logout(): Promise<void> {
 		return this.afAuth.signOut().then(() => {
 			localStorage.removeItem("user");
-			// TODO: redirect user after logout
+			this.router.navigate(["/auth/home"]);
 		});
 	}
 
@@ -72,7 +74,7 @@ export class AuthService {
 		return this.afAuth.currentUser
 			.then((u: any) => u.sendEmailVerification())
 			.then(() => {
-				// TODO: redirect user to verify address page
+				this.router.navigate(["/auth/verify"]);
 			});
 	}
 
@@ -94,7 +96,7 @@ export class AuthService {
 			await deleteDoc(userDocRef);
 			await user.delete();
 
-			// TODO: redirect user after deletion
+			this.router.navigate(["/auth/home"]);
 		}
 	}
 
