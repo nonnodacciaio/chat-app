@@ -3,13 +3,7 @@ import { AuthService } from "src/app/shared/services/auth.service";
 
 @Component({
 	selector: "global",
-	template: `Global chat
-		<button
-			mat-raised-button
-			color="warn"
-			(click)="authService.logout()">
-			Logout
-		</button>`
+	template: `Global chat`
 })
 export class GlobalChatComponent {
 	constructor(public authService: AuthService) {}

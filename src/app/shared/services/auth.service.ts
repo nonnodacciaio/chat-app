@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { FirebaseError } from "@angular/fire/app";
 import { GoogleAuthProvider } from "@angular/fire/auth";
 import { AngularFireAuth } from "@angular/fire/compat/auth";
-import { Firestore, collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, where } from "@angular/fire/firestore";
+import { collection, deleteDoc, doc, getDocs, getFirestore, query, setDoc, where } from "@angular/fire/firestore";
 import { Router } from "@angular/router";
+import { FirebaseError } from "firebase/app";
 import { BehaviorSubject } from "rxjs";
 import { MessageService } from "./message.service";
 
@@ -11,8 +11,9 @@ import { MessageService } from "./message.service";
 export class AuthService {
 	private userDataSubject: BehaviorSubject<any | null> = new BehaviorSubject<any | null>(null);
 	userData$ = this.userDataSubject.asObservable();
+	firestore = getFirestore();
 
-	constructor(private afAuth: AngularFireAuth, private messageService: MessageService, private router: Router, private firestore: Firestore) {
+	constructor(private afAuth: AngularFireAuth, private messageService: MessageService, private router: Router) {
 		this.afAuth.authState.subscribe(user => {
 			if (user) {
 				this.userDataSubject.next(user);
@@ -59,7 +60,6 @@ export class AuthService {
 			await setDoc(docRef, { uid: user.uid, email: user.email, displayName: user.displayName, phoneNumber: user.phoneNumber }, { merge: true });
 		} catch (error) {
 			this.messageService.error(`Error storing user data`);
-			console.log(error);
 		}
 	}
 
@@ -82,8 +82,7 @@ export class AuthService {
 		const user = await this.afAuth.currentUser;
 
 		if (user) {
-			const firestore = getFirestore();
-			const tasksQuery = query(collection(firestore, "tasks"), where("uid", "==", user.uid));
+			const tasksQuery = query(collection(this.firestore, "tasks"), where("uid", "==", user.uid));
 			const taskDocs = await getDocs(tasksQuery);
 
 			const deleteTasksPromises = taskDocs.docs.map(async taskDoc => {
@@ -92,7 +91,7 @@ export class AuthService {
 
 			await Promise.all(deleteTasksPromises);
 
-			const userDocRef = doc(firestore, "users", user.uid);
+			const userDocRef = doc(this.firestore, "users", user.uid);
 			await deleteDoc(userDocRef);
 			await user.delete();
 
