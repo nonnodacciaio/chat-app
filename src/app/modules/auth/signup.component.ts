@@ -15,6 +15,16 @@ import { AuthService } from "src/app/shared/services/auth.service";
 		/></mat-form-field>
 
 		<mat-form-field
+			><mat-label>Nickname</mat-label
+			><input
+				name="displayname"
+				type="text"
+				matInput
+				required
+				[(ngModel)]="displayName"
+		/></mat-form-field>
+
+		<mat-form-field
 			><mat-label>Password</mat-label
 			><input
 				name="password"
@@ -26,7 +36,7 @@ import { AuthService } from "src/app/shared/services/auth.service";
 			type="submit"
 			color="primary"
 			mat-raised-button
-			(click)="authService.signup(email, password)"
+			(click)="authService.signup(email, password, displayName)"
 			class="mb-4">
 			Signup
 		</button>
@@ -40,6 +50,7 @@ import { AuthService } from "src/app/shared/services/auth.service";
 export class SignupComponent {
 	email = "";
 	password = "";
+	displayName = "";
 
 	constructor(public authService: AuthService) {}
 }

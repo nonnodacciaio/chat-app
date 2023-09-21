@@ -41,7 +41,7 @@ export class AuthService {
 			.catch((error: FirebaseError) => this.messageService.error(error.message));
 	}
 
-	signup(email: string, password: string) {
+	signup(email: string, password: string, displayName: string) {
 		this.afAuth
 			.createUserWithEmailAndPassword(email, password)
 			.then(result => {
@@ -54,10 +54,10 @@ export class AuthService {
 			.catch((error: FirebaseError) => this.messageService.error(error.message));
 	}
 
-	private async setUserData(user: any) {
+	private async setUserData(user: any, displayName?: string) {
 		try {
 			const docRef = doc(getFirestore(), "users", user.uid);
-			await setDoc(docRef, { uid: user.uid, email: user.email, displayName: user.displayName, phoneNumber: user.phoneNumber }, { merge: true });
+			await setDoc(docRef, { uid: user.uid, email: user.email, displayName: !displayName ? user.displayName : displayName, phoneNumber: user.phoneNumber }, { merge: true });
 		} catch (error) {
 			this.messageService.error(`Error storing user data`);
 		}
